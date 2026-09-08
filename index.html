@@ -6,26 +6,39 @@
     <title>Sistem Informasi Database Mustahik</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f4f7f6; color: #333; display: flex; }
-        .sidebar { width: 250px; background-color: #2c3e50; color: white; height: 100vh; padding-top: 20px; position: fixed; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f4f7f6; color: #333; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* HALAMAN LOGIN */
+        #login-page { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #2c3e50; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center; }
+        .login-card h2 { margin-bottom: 25px; color: #2c3e50; font-size: 22px; }
+        .login-card .form-group { text-align: left; margin-bottom: 20px; }
+        .login-card .btn { width: 100%; padding: 12px; font-size: 16px; margin-top: 10px; }
+
+        /* SIDEBAR */
+        .sidebar { width: 250px; background-color: #2c3e50; color: white; height: 100vh; padding-top: 20px; position: fixed; top: 0; left: 0; display: none; z-index: 100; }
         .sidebar h2 { text-align: center; margin-bottom: 30px; font-size: 18px; padding: 0 10px; line-height: 1.4; }
         .sidebar a { display: block; color: white; padding: 15px 20px; text-decoration: none; cursor: pointer; transition: 0.3s; }
         .sidebar a:hover, .sidebar a.active { background-color: #1abc9c; }
+        .sidebar .logout-btn { background-color: #e74c3c; margin-top: 30px; }
+        .sidebar .logout-btn:hover { background-color: #c0392b; }
         
-        .main-content { margin-left: 250px; padding: 20px; width: calc(100% - 250px); box-sizing: border-box; }
+        /* MAIN CONTENT PRESISI */
+        .main-content { margin-left: 250px; padding: 20px; width: calc(100% - 250px); height: 100vh; overflow-y: auto; display: none; }
         .page-section { display: none; animation: fadeIn 0.5s; }
         .page-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; width: 100%; }
 
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="number"], .form-group input[type="date"], .form-group select, .form-group textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit;}
-        .form-row { display: flex; gap: 15px; }
+        .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="number"], .form-group input[type="password"], .form-group input[type="date"], .form-group select, .form-group textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit;}
+        .form-row { display: flex; gap: 15px; width: 100%; }
         .form-row .form-group { flex: 1; }
         
-        .filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
+        .filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; width: 100%; }
         
         .btn { background-color: #1abc9c; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-size: 14px; font-weight: bold;}
         .btn:hover { background-color: #16a085; }
@@ -40,25 +53,45 @@
         th { background-color: #2c3e50; color: white; }
         tr:nth-child(even) { background-color: #f9f9f9; }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; width: 100%; }
         .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; border-bottom: 4px solid #1abc9c;}
         .stat-card h3 { margin: 0 0 10px 0; color: #7f8c8d; font-size: 14px; text-transform: uppercase;}
         .stat-card p { margin: 0; font-size: 24px; font-weight: bold; color: #2c3e50; }
-        .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        
+        .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; }
     </style>
 </head>
 <body>
 
+    <!-- HALAMAN LOGIN (DUMMY) -->
+    <div id="login-page">
+        <div class="login-card">
+            <h2>Sistem Informasi<br>Database Mustahik</h2>
+            <form onsubmit="prosesLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required placeholder="Masukkan username...">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required placeholder="Masukkan password...">
+                </div>
+                <button type="submit" class="btn">Masuk ke Sistem</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="appSidebar">
         <h2>Sistem Informasi Database Mustahik</h2>
         <a class="nav-link active" onclick="showPage('dashboard', this)">📊 Dashboard</a>
         <a class="nav-link" onclick="showPage('data', this)">📁 Data Mustahik</a>
         <a class="nav-link" onclick="showPage('input', this)">📝 Input Data</a>
+        <a class="nav-link logout-btn" onclick="prosesLogout()">🚪 Keluar / Logout</a>
     </div>
 
     <!-- Main Content -->
-    <div class="main-content">
+    <div class="main-content" id="appContent">
         
         <!-- DASHBOARD PAGE -->
         <div id="dashboard" class="page-section active">
@@ -137,7 +170,7 @@
             <!-- GRAFIK TREN BULANAN -->
             <div class="card">
                 <h3 style="text-align: center; margin-top:0;">Tren Jumlah Mustahik per Bulan</h3>
-                <div style="height: 300px; width: 100%;">
+                <div style="height: 300px; width: 100%; position: relative;">
                     <canvas id="lineChart"></canvas>
                 </div>
             </div>
@@ -146,13 +179,13 @@
             <div class="charts-grid">
                 <div class="card">
                     <h3 style="text-align: center; margin-top:0;">Penerima per Kecamatan</h3>
-                    <div style="height: 280px; width: 100%;">
+                    <div style="height: 280px; width: 100%; position: relative;">
                         <canvas id="barKecamatanChart"></canvas>
                     </div>
                 </div>
                 <div class="card">
                     <h3 style="text-align: center; margin-top:0;">Penerima per Kelurahan (23 Kelurahan)</h3>
-                    <div style="height: 280px; width: 100%;">
+                    <div style="height: 280px; width: 100%; position: relative;">
                         <canvas id="barKelurahanChart"></canvas>
                     </div>
                 </div>
@@ -162,13 +195,13 @@
             <div class="charts-grid">
                 <div class="card">
                     <h3 style="text-align: center; margin-top:0;">Sebaran per Program</h3>
-                    <div style="height: 280px; width: 100%;">
+                    <div style="height: 280px; width: 100%; position: relative;">
                         <canvas id="pieProgramChart"></canvas>
                     </div>
                 </div>
                 <div class="card">
                     <h3 style="text-align: center; margin-top:0;">Sebaran per Asnaf (8 Golongan)</h3>
-                    <div style="height: 280px; width: 100%;">
+                    <div style="height: 280px; width: 100%; position: relative;">
                         <canvas id="barAsnafChart"></canvas>
                     </div>
                 </div>
@@ -421,6 +454,29 @@
 
         let lineChart, barKecamatanChart, barKelurahanChart, pieProgramChart, barAsnafChart;
 
+        function prosesLogin(event) {
+            event.preventDefault();
+            document.getElementById("login-page").style.display = "none";
+            document.getElementById("appSidebar").style.display = "block";
+            document.getElementById("appContent").style.display = "block";
+            
+            // Resize ulang grafik secara dinamis agar presisi setelah container dimunculkan
+            setTimeout(() => {
+                [lineChart, barKecamatanChart, barKelurahanChart, pieProgramChart, barAsnafChart].forEach(chart => {
+                    if (chart) chart.resize();
+                });
+                refreshDashboard(databaseMustahik);
+            }, 50);
+        }
+
+        function prosesLogout() {
+            document.getElementById("login-page").style.display = "flex";
+            document.getElementById("appSidebar").style.display = "none";
+            document.getElementById("appContent").style.display = "none";
+            document.getElementById("username").value = "";
+            document.getElementById("password").value = "";
+        }
+
         function updateKelurahanOptions() {
             let kecamatanSelect = document.getElementById("inputKecamatan");
             let kelurahanSelect = document.getElementById("inputKelurahan");
@@ -489,8 +545,15 @@
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
+            if(element) element.classList.add('active');
             if(pageId === 'input') setNomorOtomatis();
+
+            // Sempurnakan ukuran chart jika kembali ke tab dashboard
+            setTimeout(() => {
+                [lineChart, barKecamatanChart, barKelurahanChart, pieProgramChart, barAsnafChart].forEach(chart => {
+                    if (chart) chart.resize();
+                });
+            }, 50);
         }
 
         function simpanDataBaru(event) {
@@ -660,6 +723,8 @@
             updateDashboardKelurahanOptions();
             renderTabel(databaseMustahik);
 
+            const commonOptions = { responsive: true, maintainAspectRatio: false };
+
             const ctxLine = document.getElementById('lineChart').getContext('2d');
             lineChart = new Chart(ctxLine, {
                 type: 'line',
@@ -675,14 +740,14 @@
                         tension: 0.4 
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+                options: { ...commonOptions, plugins: { legend: { position: 'top' } } }
             });
 
             const ctxBarKec = document.getElementById('barKecamatanChart').getContext('2d');
             barKecamatanChart = new Chart(ctxBarKec, { 
                 type: 'bar', 
                 data: { labels: ['Argomulyo', 'Sidomukti', 'Sidorejo', 'Tingkir'], datasets: [{ label: 'Mustahik', data: [0,0,0,0], backgroundColor: ['#3498db', '#e74c3c', '#2ecc71', '#f1c40f'] }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: { ...commonOptions, plugins: { legend: { display: false } } }
             });
 
             const ctxBarKel = document.getElementById('barKelurahanChart').getContext('2d');
@@ -690,8 +755,7 @@
                 type: 'bar', 
                 data: { labels: allKelurahanList, datasets: [{ label: 'Mustahik', data: new Array(23).fill(0), backgroundColor: '#34495e' }] },
                 options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
+                    ...commonOptions, 
                     plugins: { legend: { display: false } },
                     scales: { x: { ticks: { font: { size: 9 }, maxRotation: 90, minRotation: 45 } } }
                 }
@@ -701,7 +765,7 @@
             pieProgramChart = new Chart(ctxPieProg, { 
                 type: 'pie', 
                 data: { labels: ['Salatiga Cerdas', 'Salatiga Sehat', 'Salatiga Peduli', 'Salatiga Makmur', 'Salatiga Barokah'], datasets: [{ data: [0,0,0,0,0], backgroundColor: ['#9b59b6', '#3498db', '#e67e22', '#2ecc71', '#e74c3c'] }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+                options: { ...commonOptions, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
             });
 
             const ctxBarAsnaf = document.getElementById('barAsnafChart').getContext('2d');
@@ -709,14 +773,11 @@
                 type: 'bar', 
                 data: { labels: ['Fakir', 'Miskin', 'Amil', 'Mualaf', 'Riqab', 'Gharim', 'Sabilillah', 'Ibnu Sabil'], datasets: [{ label: 'Mustahik', data: new Array(8).fill(0), backgroundColor: '#e67e22' }] },
                 options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
+                    ...commonOptions, 
                     plugins: { legend: { display: false } },
                     scales: { x: { ticks: { font: { size: 10 } } } }
                 }
             });
-
-            refreshDashboard(databaseMustahik);
         };
     </script>
 </body>
