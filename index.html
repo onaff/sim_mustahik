@@ -21,11 +21,10 @@
 
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="number"], .form-group select, .form-group textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit;}
+        .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="number"], .form-group input[type="date"], .form-group select, .form-group textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit;}
         .form-row { display: flex; gap: 15px; }
         .form-row .form-group { flex: 1; }
         
-        .readonly-input { background-color: #e9ecef !important; color: #6c757d; cursor: not-allowed; font-weight: bold; }
         .filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
         
         .btn { background-color: #1abc9c; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-size: 14px; font-weight: bold;}
@@ -77,7 +76,7 @@
                     <div class="form-group">
                         <label>Tahun</label>
                         <select id="filterTahun">
-                            <option value="">Semua Tahun</option>
+                            <option value="">-- Pilih Tahun --</option>
                             <option value="2026">2026</option>
                             <option value="2025">2025</option>
                             <option value="2024">2024</option>
@@ -86,14 +85,14 @@
                     <div class="form-group">
                         <label>Bulan Kegiatan</label>
                         <select id="filterBulan">
-                            <option value="">Semua Bulan</option>
+                            <option value="">-- Pilih Bulan --</option>
                             <option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option><option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option><option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Program</label>
                         <select id="filterProgram">
-                            <option value="">Semua Program</option>
+                            <option value="">-- Pilih Program --</option>
                             <option value="SALATIGA CERDAS">SALATIGA CERDAS</option>
                             <option value="SALATIGA SEHAT">SALATIGA SEHAT</option>
                             <option value="SALATIGA PEDULI">SALATIGA PEDULI</option>
@@ -104,7 +103,7 @@
                     <div class="form-group">
                         <label>Kecamatan</label>
                         <select id="filterKecamatan" onchange="updateDashboardKelurahanOptions()">
-                            <option value="">Semua Kecamatan</option>
+                            <option value="">-- Pilih Kecamatan --</option>
                             <option value="ARGOMULYO">ARGOMULYO</option>
                             <option value="SIDOMUKTI">SIDOMUKTI</option>
                             <option value="SIDOREJO">SIDOREJO</option>
@@ -114,13 +113,13 @@
                     <div class="form-group">
                         <label>Kelurahan</label>
                         <select id="filterKelurahan">
-                            <option value="">Semua Kelurahan</option>
+                            <option value="">-- Pilih Kelurahan --</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Asnaf</label>
                         <select id="filterAsnaf">
-                            <option value="">Semua Asnaf</option>
+                            <option value="">-- Pilih Asnaf --</option>
                             <option value="FAKIR">FAKIR</option>
                             <option value="MISKIN">MISKIN</option>
                             <option value="AMIL">AMIL</option>
@@ -190,7 +189,7 @@
                     <div class="form-group">
                         <label>Tahun</label>
                         <select id="searchTahun" onchange="filterTableData()">
-                            <option value="">Semua Tahun</option>
+                            <option value="">-- Pilih Tahun --</option>
                             <option value="2026">2026</option>
                             <option value="2025">2025</option>
                             <option value="2024">2024</option>
@@ -199,14 +198,14 @@
                     <div class="form-group">
                         <label>Bulan</label>
                         <select id="searchBulan" onchange="filterTableData()">
-                            <option value="">Semua Bulan</option>
+                            <option value="">-- Pilih Bulan --</option>
                             <option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option><option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option><option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Program</label>
                         <select id="searchProgram" onchange="filterTableData()">
-                            <option value="">Semua Program</option>
+                            <option value="">-- Pilih Program --</option>
                             <option value="SALATIGA CERDAS">SALATIGA CERDAS</option>
                             <option value="SALATIGA SEHAT">SALATIGA SEHAT</option>
                             <option value="SALATIGA PEDULI">SALATIGA PEDULI</option>
@@ -217,7 +216,7 @@
                     <div class="form-group">
                         <label>Kecamatan</label>
                         <select id="searchKecamatan" onchange="updateSearchKelurahanOptions(); filterTableData();">
-                            <option value="">Semua Kecamatan</option>
+                            <option value="">-- Pilih Kecamatan --</option>
                             <option value="ARGOMULYO">ARGOMULYO</option>
                             <option value="SIDOMUKTI">SIDOMUKTI</option>
                             <option value="SIDOREJO">SIDOREJO</option>
@@ -227,13 +226,13 @@
                     <div class="form-group">
                         <label>Kelurahan</label>
                         <select id="searchKelurahan" onchange="filterTableData()">
-                            <option value="">Semua Kelurahan</option>
+                            <option value="">-- Pilih Kelurahan --</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Asnaf</label>
                         <select id="searchAsnaf" onchange="filterTableData()">
-                            <option value="">Semua Asnaf</option>
+                            <option value="">-- Pilih Asnaf --</option>
                             <option value="FAKIR">FAKIR</option>
                             <option value="MISKIN">MISKIN</option>
                             <option value="AMIL">AMIL</option>
@@ -276,14 +275,16 @@
             <h2>Form Input Data Mustahik</h2>
             <div class="card">
                 <form id="formInput" onsubmit="simpanDataBaru(event)">
+                    <input type="hidden" id="nomorUrut" name="no">
+
                     <div class="form-row">
-                        <div class="form-group"><label>ID (Otomatis)</label><input type="text" id="nomorUrut" name="no" class="readonly-input" readonly></div>
                         <div class="form-group"><label>NIK</label><input type="number" id="inputNik" required placeholder="Masukkan 16 digit NIK"></div>
                         <div class="form-group"><label>NAMA</label><input type="text" id="inputNama" required placeholder="Nama lengkap mustahik"></div>
                     </div>
                     
                     <div class="form-row">
-                        <div class="form-group"><label>TEMPAT TANGGAL LAHIR</label><input type="text" id="inputTtl" placeholder="Contoh: Salatiga, 17-08-1990"></div>
+                        <div class="form-group"><label>TEMPAT LAHIR</label><input type="text" id="inputTempatLahir" placeholder="Contoh: Salatiga"></div>
+                        <div class="form-group"><label>TANGGAL LAHIR</label><input type="date" id="inputTanggalLahir"></div>
                         <div class="form-group">
                             <label>JENIS KELAMIN</label>
                             <div style="margin-top: 8px;">
@@ -304,7 +305,8 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>KECAMATAN</label>
-                            <select id="inputKecamatan" name="kecamatan" onchange="updateKelurahanOptions()">
+                            <select id="inputKecamatan" name="kecamatan" onchange="updateKelurahanOptions()" required>
+                                <option value="">-- Pilih Kecamatan --</option>
                                 <option value="ARGOMULYO">ARGOMULYO</option>
                                 <option value="SIDOMUKTI">SIDOMUKTI</option>
                                 <option value="SIDOREJO">SIDOREJO</option>
@@ -313,8 +315,8 @@
                         </div>
                         <div class="form-group">
                             <label>KELURAHAN</label>
-                            <select id="inputKelurahan" name="kelurahan">
-                                <!-- Terisi otomatis lewat JavaScript -->
+                            <select id="inputKelurahan" name="kelurahan" required>
+                                <option value="">-- Pilih Kelurahan --</option>
                             </select>
                         </div>
                     </div>
@@ -322,7 +324,8 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>JENIS BANTUAN</label>
-                            <select id="inputBantuan">
+                            <select id="inputBantuan" required>
+                                <option value="">-- Pilih Jenis Bantuan --</option>
                                 <option value="KONSUMTIF">KONSUMTIF</option>
                                 <option value="EKONOMI PRODUKTIF">EKONOMI PRODUKTIF</option>
                                 <option value="RTLH">RTLH</option>
@@ -330,7 +333,8 @@
                         </div>
                         <div class="form-group">
                             <label>PROGRAM</label>
-                            <select id="inputProgram">
+                            <select id="inputProgram" required>
+                                <option value="">-- Pilih Program --</option>
                                 <option value="SALATIGA CERDAS">SALATIGA CERDAS</option>
                                 <option value="SALATIGA SEHAT">SALATIGA SEHAT</option>
                                 <option value="SALATIGA PEDULI">SALATIGA PEDULI</option>
@@ -343,7 +347,8 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>ASNAF (8 Golongan)</label>
-                            <select id="inputAsnaf">
+                            <select id="inputAsnaf" required>
+                                <option value="">-- Pilih Asnaf --</option>
                                 <option value="FAKIR">FAKIR</option>
                                 <option value="MISKIN">MISKIN</option>
                                 <option value="AMIL">AMIL</option>
@@ -356,7 +361,8 @@
                         </div>
                         <div class="form-group">
                             <label>TAHUN KEGIATAN</label>
-                            <select id="inputTahun">
+                            <select id="inputTahun" required>
+                                <option value="">-- Pilih Tahun --</option>
                                 <option value="2026">2026</option>
                                 <option value="2025">2025</option>
                                 <option value="2024">2024</option>
@@ -364,7 +370,8 @@
                         </div>
                         <div class="form-group">
                             <label>BULAN KEGIATAN</label>
-                            <select id="inputBulan">
+                            <select id="inputBulan" required>
+                                <option value="">-- Pilih Bulan --</option>
                                 <option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option><option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option><option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
                             </select>
                         </div>
@@ -418,7 +425,8 @@
             let kecamatanSelect = document.getElementById("inputKecamatan");
             let kelurahanSelect = document.getElementById("inputKelurahan");
             let selectedKec = kecamatanSelect.value;
-            kelurahanSelect.innerHTML = "";
+            
+            kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
             if (dataKelurahanSalatiga[selectedKec]) {
                 dataKelurahanSalatiga[selectedKec].forEach(function(kel) {
                     let opt = document.createElement("option");
@@ -433,7 +441,7 @@
             let kecamatanSelect = document.getElementById("searchKecamatan");
             let kelurahanSelect = document.getElementById("searchKelurahan");
             let selectedKec = kecamatanSelect.value;
-            kelurahanSelect.innerHTML = '<option value="">Semua Kelurahan</option>';
+            kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
             if (selectedKec && dataKelurahanSalatiga[selectedKec]) {
                 dataKelurahanSalatiga[selectedKec].forEach(function(kel) {
                     let opt = document.createElement("option");
@@ -455,7 +463,7 @@
             let kecamatanSelect = document.getElementById("filterKecamatan");
             let kelurahanSelect = document.getElementById("filterKelurahan");
             let selectedKec = kecamatanSelect.value;
-            kelurahanSelect.innerHTML = '<option value="">Semua Kelurahan</option>';
+            kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
             if (selectedKec && dataKelurahanSalatiga[selectedKec]) {
                 dataKelurahanSalatiga[selectedKec].forEach(function(kel) {
                     let opt = document.createElement("option");
@@ -491,7 +499,6 @@
             let nikInput = document.getElementById("inputNik").value;
             let namaInput = document.getElementById("inputNama").value;
 
-            // Cek apakah NIK sudah pernah terdaftar sebelumnya
             let riwayatPenerima = databaseMustahik.filter(item => item.nik === nikInput);
             if (riwayatPenerima.length > 0) {
                 let pesanRiwayat = `Perhatian: NIK ${nikInput} atas nama ${namaInput} tercatat PERNAH MENERIMA BANTUAN sebelumnya:\n`;
@@ -502,12 +509,12 @@
 
                 let konfirmasi = confirm(pesanRiwayat);
                 if (!konfirmasi) {
-                    return; // Batalkan jika user klik Batal
+                    return; 
                 }
             }
 
             let newData = {
-                id: databaseMustahik.length + 1, // Auto-increment ID sebagai Primary Key unik baris
+                id: databaseMustahik.length + 1, 
                 nik: nikInput,
                 nama: namaInput,
                 kecamatan: document.getElementById("inputKecamatan").value,
@@ -524,6 +531,7 @@
             alert("Data mustahik berhasil disimpan!");
             document.getElementById("formInput").reset();
             setNomorOtomatis();
+            updateKelurahanOptions();
             renderTabel(databaseMustahik);
             refreshDashboard(databaseMustahik);
         }
