@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Database Mustahik</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f4f7f6; color: #333; display: flex; }
+        .sidebar { width: 250px; background-color: #2c3e50; color: white; height: 100vh; padding-top: 20px; position: fixed; }
+        .sidebar h2 { text-align: center; margin-bottom: 30px; font-size: 18px; padding: 0 10px; line-height: 1.4; }
+        .sidebar a { display: block; color: white; padding: 15px 20px; text-decoration: none; cursor: pointer; transition: 0.3s; }
+        .sidebar a:hover, .sidebar a.active { background-color: #1abc9c; }
+        
+        .main-content { margin-left: 250px; padding: 20px; width: calc(100% - 250px); box-sizing: border-box; }
+        .page-section { display: none; animation: fadeIn 0.5s; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="number"], .form-group select, .form-group textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit;}
+        .form-row { display: flex; gap: 15px; }
+        .form-row .form-group { flex: 1; }
+        
+        .readonly-input { background-color: #e9ecef !important; color: #6c757d; cursor: not-allowed; font-weight: bold; }
+        .filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
+        
+        .btn { background-color: #1abc9c; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-size: 14px; font-weight: bold;}
+        .btn:hover { background-color: #16a085; }
+        .btn-danger { background-color: #e74c3c; }
+        .btn-danger:hover { background-color: #c0392b; }
+        .btn-success { background-color: #27ae60; }
+        .btn-success:hover { background-color: #2ecc71; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px;}
+        table, th, td { border: 1px solid #ddd; }
+        th, td { padding: 10px; text-align: left; }
+        th { background-color: #2c3e50; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; border-bottom: 4px solid #1abc9c;}
+        .stat-card h3 { margin: 0 0 10px 0; color: #7f8c8d; font-size: 14px; text-transform: uppercase;}
+        .stat-card p { margin: 0; font-size: 24px; font-weight: bold; color: #2c3e50; }
+        .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Sistem Informasi Database Mustahik</h2>
+        <a class="nav-link active" onclick="showPage('dashboard', this)">📊 Dashboard</a>
+        <a class="nav-link" onclick="showPage('data', this)">📁 Data Mustahik</a>
+        <a class="nav-link" onclick="showPage('input', this)">📝 Input Data</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard" class="page-section active">
+            <h2>Dashboard Statistik & Laporan</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card"><h3>Total Mustahik</h3><p id="statTotalMustahik">0</p></div>
+                <div class="stat-card"><h3>Total Penyaluran</h3><p id="statTotalNominal">Rp 0</p></div>
+            </div>
+
+            <!-- PANEL FILTER DATA DASHBOARD -->
+            <div class="card">
+                <h3 style="margin-top:0; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px;">🔍 Filter Data Dashboard</h3>
+                <div class="filter-grid">
+                    <div class="form-group">
+                        <label>Tahun</label>
+                        <select id="filterTahun">
+                            <option value="">Semua Tahun</option>
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Bulan Kegiatan</label>
+                        <select id="filterBulan">
+                            <option value="">Semua Bulan</option>
+                            <option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option><option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option><option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Program</label>
+                        <select id="filterProgram">
+                            <option value="">Semua Program</option>
+                            <option value="SALATIGA CERDAS">SALATIGA CERDAS</option>
+                            <option value="SALATIGA SEHAT">SALATIGA SEHAT</option>
+                            <option value="SALATIGA PEDULI">SALATIGA PEDULI</option>
+                            <option value="SALATIGA MAKMUR">SALATIGA MAKMUR</option>
+                            <option value="SALATIGA BAROKAH">SALATIGA BAROKAH</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kecamatan</label>
+                        <select id="filterKecamatan" onchange="updateDashboardKelurahanOptions()">
+                            <option value="">Semua Kecamatan</option>
+                            <option value="ARGOMULYO">ARGOMULYO</option>
+                            <option value="SIDOMUKTI">SIDOMUKTI</option>
+                            <option value="SIDOREJO">SIDOREJO</option>
+                            <option value="TINGKIR">TINGKIR</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kelurahan</label>
+                        <select id="filterKelurahan">
+                            <option value="">Semua Kelurahan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Asnaf</label>
+                        <select id="filterAsnaf">
+                            <option value="">Semua Asnaf</option>
+                            <option value="FAKIR">FAKIR</option>
+                            <option value="MISKIN">MISKIN</option>
+                            <option value="AMIL">AMIL</option>
+                            <option value="MUALAF">MUALAF</option>
+                            <option value="RIQAB">RIQAB</option>
+                            <option value="GHARIM">GHARIM</option>
+                            <option value="SABILILLAH">SABILILLAH</option>
+                            <option value="IBNU SABIL">IBNU SABIL</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn" onclick="terapkanFilterDashboard()">🔍 Terapkan Filter</button>
+            </div>
+
+            <!-- GRAFIK TREN BULANAN -->
+            <div class="card">
+                <h3 style="text-align: center; margin-top:0;">Tren Jumlah Mustahik per Bulan</h3>
+                <div style="height: 300px; width: 100%;">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+
+            <!-- GRAFIK KECAMATAN & KELURAHAN -->
+            <div class="charts-grid">
+                <div class="card">
+                    <h3 style="text-align: center; margin-top:0;">Penerima per Kecamatan</h3>
+                    <div style="height: 280px; width: 100%;">
+                        <canvas id="barKecamatanChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 style="text-align: center; margin-top:0;">Penerima per Kelurahan (23 Kelurahan)</h3>
+                    <div style="height: 280px; width: 100%;">
+                        <canvas id="barKelurahanChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRAFIK PROGRAM & ASNAF -->
+            <div class="charts-grid">
+                <div class="card">
+                    <h3 style="text-align: center; margin-top:0;">Sebaran per Program</h3>
+                    <div style="height: 280px; width: 100%;">
+                        <canvas id="pieProgramChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 style="text-align: center; margin-top:0;">Sebaran per Asnaf (8 Golongan)</h3>
+                    <div style="height: 280px; width: 100%;">
+                        <canvas id="barAsnafChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DATA TABLE PAGE (TAB KEDUA) -->
+        <div id="data" class="page-section">
+            <h2>Daftar Data Mustahik</h2>
+            
+            <div class="card" style="margin-bottom: 20px; padding: 15px;">
+                <h3 style="margin-top:0; font-size: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">🔍 Cari & Filter Data</h3>
+                <div class="filter-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 0;">
+                    <div class="form-group">
+                        <label>Cari NIK / Nama</label>
+                        <input type="text" id="searchNikNama" placeholder="Ketik NIK / Nama..." onkeyup="filterTableData()">
+                    </div>
+                    <div class="form-group">
+                        <label>Tahun</label>
+                        <select id="searchTahun" onchange="filterTableData()">
+                            <option value="">Semua Tahun</option>
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Bulan</label>
+                        <select id="searchBulan" onchange="filterTableData()">
+                            <option value="">Semua Bulan</option>
+                            <option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option><option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option><option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Program</label>
+                        <select id="searchProgram" onchange="filterTableData()">
+                            <option value="">Semua Program</option>
+                            <option value="SALATIGA CERDAS">SALATIGA CERDAS</option>
+                            <option value="SALATIGA SEHAT">SALATIGA SEHAT</option>
+                            <option value="SALATIGA PEDULI">SALATIGA PEDULI</option>
+                            <option value="SALATIGA MAKMUR">SALATIGA MAKMUR</option>
+                            <option value="SALATIGA BAROKAH">SALATIGA BAROKAH</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kecamatan</label>
+                        <select id="searchKecamatan" onchange="updateSearchKelurahanOptions(); filterTableData();">
+                            <option value="">Semua Kecamatan</option>
+                            <option value="ARGOMULYO">ARGOMULYO</option>
+                            <option value="SIDOMUKTI">SIDOMUKTI</option>
+                            <option value="SIDOREJO">SIDOREJO</option>
+                            <option value="TINGKIR">TINGKIR</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kelurahan</label>
+                        <select id="searchKelurahan" onchange="filterTableData()">
+                            <option value="">Semua Kelurahan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Asnaf</label>
+                        <select id="searchAsnaf" onchange="filterTableData()">
+                            <option value="">Semua Asnaf</option>
+                            <option value="FAKIR">FAKIR</option>
+                            <option value="MISKIN">MISKIN</option>
+                            <option value="AMIL">AMIL</option>
+                            <option value="MUALAF">MUALAF</option>
+                            <option value="RIQAB">RIQAB</option>
+                            <option value="GHARIM">GHARIM</option>
+                            <option value="SABILILLAH">SABILILLAH</option>
+                            <option value="IBNU SABIL">IBNU SABIL</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <button class="btn" onclick="showPage('input', document.querySelectorAll('.nav-link')[2])">➕ Tambah Data Baru</button>
+                    <button class="btn btn-success" onclick="exportExcel('tabelData', 'Data_Mustahik_Salatiga')">📥 Export ke Excel</button>
+                </div>
+                
+                <div style="overflow-x:auto;">
+                    <table id="tabelData">
+                        <thead>
+                            <tr>
+                                <th>ID</th><th>NIK</th><th>NAMA</th>
+                                <th>KECAMATAN</th><th>KELURAHAN</th><th>ASNAF</th>
+                                <th>BANTUAN</th><th>PROGRAM</th><th>TAHUN</th><th>BULAN</th><th>NOMINAL</th>
+                                <th class="no-export">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBodyData">
+                            <!-- Data dimuat dinamis dari array database -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- INPUT DATA PAGE (TAB KETIGA) -->
+        <div id="input" class="page-section">
+            <h2>Form Input Data Mustahik</h2>
+            <div class="card">
+                <form id="formInput" onsubmit="simpanDataBaru(event)">
+                    <div class="form-row">
+                        <div class="form-group"><label>ID (Otomatis)</label><input type="text" id="nomorUrut" name="no" class="readonly-input" readonly></div>
+                        <div class="form-group"><label>NIK</label><input type="number" id="inputNik" required placeholder="Masukkan 16 digit NIK"></div>
+                        <div class="form-group"><label>NAMA</label><input type="text" id="inputNama" required placeholder="Nama lengkap mustahik"></div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group"><label>TEMPAT TANGGAL LAHIR</label><input type="text" id="inputTtl" placeholder="Contoh: Salatiga, 17-08-1990"></div>
+                        <div class="form-group">
+                            <label>JENIS KELAMIN</label>
+                            <div style="margin-top: 8px;">
+                                <input type="radio" name="jk" value="Laki-laki" checked> Laki-laki &nbsp;&nbsp;
+                                <input type="radio" name="jk" value="Perempuan"> Perempuan
+                            </div>
+                        </div>
+                        <div class="form-group"><label>PEKERJAAN</label><input type="text" id="inputPekerjaan" placeholder="Pekerjaan mustahik"></div>
+                    </div>
+
+                    <div class="form-group"><label>ALAMAT</label><textarea id="inputAlamat" rows="2" placeholder="Alamat lengkap tempat tinggal"></textarea></div>
+
+                    <div class="form-row">
+                        <div class="form-group"><label>TELEPON / HANDPHONE</label><input type="text" id="inputTelp" placeholder="No HP / WhatsApp"></div>
+                        <div class="form-group"><label>EMAIL</label><input type="email" id="inputEmail" placeholder="Alamat email (opsional)"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>KECAMATAN</label>
+                            <select id="inputKecamatan" name="kecamatan" onchange="updateKelurahanOptions()">
+                                <option value="ARGOMULYO">ARGOMULYO</option>
+                                <option value="SIDOMUKTI">SIDOMUKTI</option>
+                                <option value="SIDOREJO">SIDOREJO</option>
+                                <option value="TINGKIR">TINGKIR</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>KELURAHAN</label>
+                            <select id="inputKelurahan" name="kelurahan">
+                                <!-- Terisi otomatis lewat JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>JENIS BANTUAN</label>
+                            <select id="inputBantuan">
+                                <option value="KONSUMTIF">KONSUMTIF</option>
+                                <option value="EKONOMI PRODUKTIF">EKONOMI PRODUKTIF</option>
+                                <option value="RTLH">RTLH</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>PROGRAM</label>
+                            <select id="inputProgram">
+                                <option value="SALATIGA CERDAS">SALATIGA CERDAS</option>
+                                <option value="SALATIGA SEHAT">SALATIGA SEHAT</option>
+                                <option value="SALATIGA PEDULI">SALATIGA PEDULI</option>
+                                <option value="SALATIGA MAKMUR">SALATIGA MAKMUR</option>
+                                <option value="SALATIGA BAROKAH">SALATIGA BAROKAH</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ASNAF (8 Golongan)</label>
+                            <select id="inputAsnaf">
+                                <option value="FAKIR">FAKIR</option>
+                                <option value="MISKIN">MISKIN</option>
+                                <option value="AMIL">AMIL</option>
+                                <option value="MUALAF">MUALAF</option>
+                                <option value="RIQAB">RIQAB</option>
+                                <option value="GHARIM">GHARIM</option>
+                                <option value="SABILILLAH">SABILILLAH</option>
+                                <option value="IBNU SABIL">IBNU SABIL</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>TAHUN KEGIATAN</label>
+                            <select id="inputTahun">
+                                <option value="2026">2026</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>BULAN KEGIATAN</label>
+                            <select id="inputBulan">
+                                <option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option><option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option><option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>NOMINAL (Rp)</label>
+                            <input type="number" id="inputNominal" required placeholder="Contoh: 500000">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group"><label>KETERANGAN</label><textarea id="inputKeterangan" rows="2" placeholder="Keterangan tambahan..."></textarea></div>
+
+                    <button type="submit" class="btn">💾 Simpan Data</button>
+                    <button type="reset" class="btn btn-danger">❌ Batal</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        const dataKelurahanSalatiga = {
+            "ARGOMULYO": ["Cebongan", "Kumpulrejo", "Ledok", "Noborejo", "Randuacir", "Tegalrejo"], 
+            "SIDOMUKTI": ["Dukuh", "Kalicacing", "Kecandran", "Mangunsari"], 
+            "SIDOREJO": ["Blotongan", "Bugel", "Kauman Kidul", "Pulutan", "Salatiga", "Sidorejo Lor"], 
+            "TINGKIR": ["Gendongan", "Kalibening", "Kutowinangun Kidul", "Kutowinangun Lor", "Sidorejo Kidul", "Tingkir Lor", "Tingkir Tengah"] 
+        };
+
+        const allKelurahanList = [
+            "Cebongan", "Kumpulrejo", "Ledok", "Noborejo", "Randuacir", "Tegalrejo",
+            "Dukuh", "Kalicacing", "Kecandran", "Mangunsari",
+            "Blotongan", "Bugel", "Kauman Kidul", "Pulutan", "Salatiga", "Sidorejo Lor",
+            "Gendongan", "Kalibening", "Kutowinangun Kidul", "Kutowinangun Lor", "Sidorejo Kidul", "Tingkir Lor", "Tingkir Tengah"
+        ];
+
+        const listBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const listKecamatan = ['ARGOMULYO', 'SIDOMUKTI', 'SIDOREJO', 'TINGKIR'];
+        const listProgram = ['SALATIGA CERDAS', 'SALATIGA SEHAT', 'SALATIGA PEDULI', 'SALATIGA MAKMUR', 'SALATIGA BAROKAH'];
+        const listAsnaf = ['FAKIR', 'MISKIN', 'AMIL', 'MUALAF', 'RIQAB', 'GHARIM', 'SABILILLAH', 'IBNU SABIL'];
+
+        let databaseMustahik = [
+            { id: 1, nik: "337301010190001", nama: "Ahmad", kecamatan: "ARGOMULYO", kelurahan: "Tegalrejo", asnaf: "FAKIR", bantuan: "KONSUMTIF", program: "SALATIGA SEHAT", tahun: "2026", bulan: "Januari", nominal: 500000 },
+            { id: 2, nik: "337302020290002", nama: "Budi Santoso", kecamatan: "TINGKIR", kelurahan: "Tingkir Lor", asnaf: "MISKIN", bantuan: "RTLH", program: "SALATIGA PEDULI", tahun: "2026", bulan: "Februari", nominal: 2000000 },
+            { id: 3, nik: "337303030390003", nama: "Siti Aminah", kecamatan: "SIDOREJO", kelurahan: "Salatiga", asnaf: "GHARIM", bantuan: "EKONOMI PRODUKTIF", program: "SALATIGA MAKMUR", tahun: "2026", bulan: "Maret", nominal: 1500000 },
+            { id: 4, nik: "337304040490004", nama: "Joko Widodo", kecamatan: "SIDOMUKTI", kelurahan: "Mangunsari", asnaf: "MUALAF", bantuan: "KONSUMTIF", program: "SALATIGA CERDAS", tahun: "2026", bulan: "April", nominal: 750000 }
+        ];
+
+        let lineChart, barKecamatanChart, barKelurahanChart, pieProgramChart, barAsnafChart;
+
+        function updateKelurahanOptions() {
+            let kecamatanSelect = document.getElementById("inputKecamatan");
+            let kelurahanSelect = document.getElementById("inputKelurahan");
+            let selectedKec = kecamatanSelect.value;
+            kelurahanSelect.innerHTML = "";
+            if (dataKelurahanSalatiga[selectedKec]) {
+                dataKelurahanSalatiga[selectedKec].forEach(function(kel) {
+                    let opt = document.createElement("option");
+                    opt.value = kel;
+                    opt.innerHTML = kel;
+                    kelurahanSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function updateSearchKelurahanOptions() {
+            let kecamatanSelect = document.getElementById("searchKecamatan");
+            let kelurahanSelect = document.getElementById("searchKelurahan");
+            let selectedKec = kecamatanSelect.value;
+            kelurahanSelect.innerHTML = '<option value="">Semua Kelurahan</option>';
+            if (selectedKec && dataKelurahanSalatiga[selectedKec]) {
+                dataKelurahanSalatiga[selectedKec].forEach(function(kel) {
+                    let opt = document.createElement("option");
+                    opt.value = kel;
+                    opt.innerHTML = kel;
+                    kelurahanSelect.appendChild(opt);
+                });
+            } else if (!selectedKec) {
+                allKelurahanList.forEach(function(kel) {
+                    let opt = document.createElement("option");
+                    opt.value = kel;
+                    opt.innerHTML = kel;
+                    kelurahanSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function updateDashboardKelurahanOptions() {
+            let kecamatanSelect = document.getElementById("filterKecamatan");
+            let kelurahanSelect = document.getElementById("filterKelurahan");
+            let selectedKec = kecamatanSelect.value;
+            kelurahanSelect.innerHTML = '<option value="">Semua Kelurahan</option>';
+            if (selectedKec && dataKelurahanSalatiga[selectedKec]) {
+                dataKelurahanSalatiga[selectedKec].forEach(function(kel) {
+                    let opt = document.createElement("option");
+                    opt.value = kel;
+                    opt.innerHTML = kel;
+                    kelurahanSelect.appendChild(opt);
+                });
+            } else if (!selectedKec) {
+                allKelurahanList.forEach(function(kel) {
+                    let opt = document.createElement("option");
+                    opt.value = kel;
+                    opt.innerHTML = kel;
+                    kelurahanSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function setNomorOtomatis() {
+            document.getElementById('nomorUrut').value = databaseMustahik.length + 1;
+        }
+
+        function showPage(pageId, element) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            if(pageId === 'input') setNomorOtomatis();
+        }
+
+        function simpanDataBaru(event) {
+            event.preventDefault();
+            
+            let nikInput = document.getElementById("inputNik").value;
+            let namaInput = document.getElementById("inputNama").value;
+
+            // Cek apakah NIK sudah pernah terdaftar sebelumnya
+            let riwayatPenerima = databaseMustahik.filter(item => item.nik === nikInput);
+            if (riwayatPenerima.length > 0) {
+                let pesanRiwayat = `Perhatian: NIK ${nikInput} atas nama ${namaInput} tercatat PERNAH MENERIMA BANTUAN sebelumnya:\n`;
+                riwayatPenerima.forEach((r) => {
+                    pesanRiwayat += `• Program: ${r.program} (${r.bulan} ${r.tahun}) - Rp ${r.nominal.toLocaleString('id-ID')}\n`;
+                });
+                pesanRiwayat += `\nApakah Anda tetap ingin menginput data bantuan baru untuk NIK ini?`;
+
+                let konfirmasi = confirm(pesanRiwayat);
+                if (!konfirmasi) {
+                    return; // Batalkan jika user klik Batal
+                }
+            }
+
+            let newData = {
+                id: databaseMustahik.length + 1, // Auto-increment ID sebagai Primary Key unik baris
+                nik: nikInput,
+                nama: namaInput,
+                kecamatan: document.getElementById("inputKecamatan").value,
+                kelurahan: document.getElementById("inputKelurahan").value,
+                asnaf: document.getElementById("inputAsnaf").value,
+                bantuan: document.getElementById("inputBantuan").value,
+                program: document.getElementById("inputProgram").value,
+                tahun: document.getElementById("inputTahun").value,
+                bulan: document.getElementById("inputBulan").value,
+                nominal: parseInt(document.getElementById("inputNominal").value) || 0
+            };
+
+            databaseMustahik.push(newData);
+            alert("Data mustahik berhasil disimpan!");
+            document.getElementById("formInput").reset();
+            setNomorOtomatis();
+            renderTabel(databaseMustahik);
+            refreshDashboard(databaseMustahik);
+        }
+
+        function renderTabel(data) {
+            let tbody = document.getElementById("tableBodyData");
+            tbody.innerHTML = "";
+            data.forEach((item) => {
+                let tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.nik}</td>
+                    <td>${item.nama}</td>
+                    <td>${item.kecamatan}</td>
+                    <td>${item.kelurahan}</td>
+                    <td>${item.asnaf}</td>
+                    <td>${item.bantuan}</td>
+                    <td>${item.program}</td>
+                    <td>${item.tahun}</td>
+                    <td>${item.bulan}</td>
+                    <td>Rp ${item.nominal.toLocaleString('id-ID')}</td>
+                    <td class="no-export"><button class="btn" style="padding: 5px; font-size:11px;">Edit</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterTableData() {
+            let valNikNama = document.getElementById("searchNikNama").value.toLowerCase();
+            let valTahun = document.getElementById("searchTahun").value.toLowerCase();
+            let valBulan = document.getElementById("searchBulan").value.toLowerCase();
+            let valProgram = document.getElementById("searchProgram").value.toLowerCase();
+            let valKec = document.getElementById("searchKecamatan").value.toLowerCase();
+            let valKel = document.getElementById("searchKelurahan").value.toLowerCase();
+            let valAsnaf = document.getElementById("searchAsnaf").value.toLowerCase();
+
+            let filtered = databaseMustahik.filter(item => {
+                let matchNikNama = item.nik.toLowerCase().includes(valNikNama) || item.nama.toLowerCase().includes(valNikNama);
+                let matchTahun = valTahun === "" || item.tahun.toLowerCase() === valTahun;
+                let matchBulan = valBulan === "" || item.bulan.toLowerCase() === valBulan;
+                let matchProgram = valProgram === "" || item.program.toLowerCase() === valProgram;
+                let matchKec = valKec === "" || item.kecamatan.toLowerCase() === valKec;
+                let matchKel = valKel === "" || item.kelurahan.toLowerCase() === valKel;
+                let matchAsnaf = valAsnaf === "" || item.asnaf.toLowerCase() === valAsnaf;
+                return matchNikNama && matchTahun && matchBulan && matchProgram && matchKec && matchKel && matchAsnaf;
+            });
+            renderTabel(filtered);
+        }
+
+        function terapkanFilterDashboard() {
+            let valTahun = document.getElementById("filterTahun").value;
+            let valBulan = document.getElementById("filterBulan").value;
+            let valProgram = document.getElementById("filterProgram").value;
+            let valKec = document.getElementById("filterKecamatan").value;
+            let valKel = document.getElementById("filterKelurahan").value;
+            let valAsnaf = document.getElementById("filterAsnaf").value;
+
+            let filtered = databaseMustahik.filter(item => {
+                let matchTahun = valTahun === "" || item.tahun === valTahun;
+                let matchBulan = valBulan === "" || item.bulan === valBulan;
+                let matchProgram = valProgram === "" || item.program === valProgram;
+                let matchKec = valKec === "" || item.kecamatan === valKec;
+                let matchKel = valKel === "" || item.kelurahan === valKel;
+                let matchAsnaf = valAsnaf === "" || item.asnaf === valAsnaf;
+                return matchTahun && matchBulan && matchProgram && matchKec && matchKel && matchAsnaf;
+            });
+
+            refreshDashboard(filtered);
+            alert("Filter Dashboard berhasil diterapkan dan grafik telah diperbarui!");
+        }
+
+        function refreshDashboard(data) {
+            let totalMustahik = data.length;
+            let totalNominal = data.reduce((sum, item) => sum + item.nominal, 0);
+            document.getElementById("statTotalMustahik").innerText = totalMustahik;
+            document.getElementById("statTotalNominal").innerText = "Rp " + totalNominal.toLocaleString('id-ID');
+
+            let dataBulan = listBulan.map(b => data.filter(item => item.bulan === b).length);
+            lineChart.data.datasets[0].data = dataBulan;
+            lineChart.update();
+
+            let dataKec = listKecamatan.map(kec => data.filter(item => item.kecamatan === kec).length);
+            barKecamatanChart.data.datasets[0].data = dataKec;
+            barKecamatanChart.update();
+
+            let dataKel = allKelurahanList.map(kel => data.filter(item => item.kelurahan === kel).length);
+            barKelurahanChart.data.datasets[0].data = dataKel;
+            barKelurahanChart.update();
+
+            let dataProg = listProgram.map(prog => data.filter(item => item.program === prog).length);
+            pieProgramChart.data.datasets[0].data = dataProg;
+            pieProgramChart.update();
+
+            let dataAsnaf = listAsnaf.map(asf => data.filter(item => item.asnaf === asf).length);
+            barAsnafChart.data.datasets[0].data = dataAsnaf;
+            barAsnafChart.update();
+        }
+
+        function exportExcel(tableID, filename = '') {
+            let table = document.getElementById(tableID);
+            let tableClone = table.cloneNode(true);
+            let noExportElements = tableClone.querySelectorAll('.no-export');
+            noExportElements.forEach(el => el.parentNode.removeChild(el));
+
+            let tableHTML = tableClone.outerHTML.replace(/ /g, '%20');
+            let dataType = 'application/vnd.ms-excel';
+            filename = filename ? filename + '.xls' : 'Data_Mustahik.xls';
+
+            let downloadLink = document.createElement("a");
+            document.body.appendChild(downloadLink);
+            
+            if (navigator.msSaveOrOpenBlob) { 
+                let blob = new Blob(['\ufeff', tableClone.outerHTML], { type: dataType });
+                navigator.msSaveOrOpenBlob(blob, filename);
+            } else { 
+                downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+                downloadLink.download = filename;
+                downloadLink.click();
+            }
+        }
+
+        window.onload = function() {
+            setNomorOtomatis();
+            updateKelurahanOptions(); 
+            updateSearchKelurahanOptions();
+            updateDashboardKelurahanOptions();
+            renderTabel(databaseMustahik);
+
+            const ctxLine = document.getElementById('lineChart').getContext('2d');
+            lineChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: listBulan,
+                    datasets: [{
+                        label: 'Jumlah Mustahik',
+                        data: [0,0,0,0,0,0,0,0,0,0,0,0], 
+                        borderColor: '#1abc9c', 
+                        backgroundColor: 'rgba(26, 188, 156, 0.2)', 
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4 
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+
+            const ctxBarKec = document.getElementById('barKecamatanChart').getContext('2d');
+            barKecamatanChart = new Chart(ctxBarKec, { 
+                type: 'bar', 
+                data: { labels: ['Argomulyo', 'Sidomukti', 'Sidorejo', 'Tingkir'], datasets: [{ label: 'Mustahik', data: [0,0,0,0], backgroundColor: ['#3498db', '#e74c3c', '#2ecc71', '#f1c40f'] }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            const ctxBarKel = document.getElementById('barKelurahanChart').getContext('2d');
+            barKelurahanChart = new Chart(ctxBarKel, { 
+                type: 'bar', 
+                data: { labels: allKelurahanList, datasets: [{ label: 'Mustahik', data: new Array(23).fill(0), backgroundColor: '#34495e' }] },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: { x: { ticks: { font: { size: 9 }, maxRotation: 90, minRotation: 45 } } }
+                }
+            });
+
+            const ctxPieProg = document.getElementById('pieProgramChart').getContext('2d');
+            pieProgramChart = new Chart(ctxPieProg, { 
+                type: 'pie', 
+                data: { labels: ['Salatiga Cerdas', 'Salatiga Sehat', 'Salatiga Peduli', 'Salatiga Makmur', 'Salatiga Barokah'], datasets: [{ data: [0,0,0,0,0], backgroundColor: ['#9b59b6', '#3498db', '#e67e22', '#2ecc71', '#e74c3c'] }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+            });
+
+            const ctxBarAsnaf = document.getElementById('barAsnafChart').getContext('2d');
+            barAsnafChart = new Chart(ctxBarAsnaf, { 
+                type: 'bar', 
+                data: { labels: ['Fakir', 'Miskin', 'Amil', 'Mualaf', 'Riqab', 'Gharim', 'Sabilillah', 'Ibnu Sabil'], datasets: [{ label: 'Mustahik', data: new Array(8).fill(0), backgroundColor: '#e67e22' }] },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: { x: { ticks: { font: { size: 10 } } } }
+                }
+            });
+
+            refreshDashboard(databaseMustahik);
+        };
+    </script>
+</body>
+</html>
