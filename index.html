@@ -68,11 +68,11 @@
 
         /* MODAL DETAIL BY NAME */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background-color: #fefefe; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; animation: slideDown 0.3s; }
+        .modal-content { background-color: #fefefe; padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; animation: slideDown 0.3s; max-height: 90vh; overflow-y: auto; }
         @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; margin-top: -10px; }
         .close-btn:hover { color: #000; }
-        .detail-item { margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 8px; display: flex; justify-content: space-between; }
+        .detail-item { margin-bottom: 8px; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 6px; display: flex; justify-content: space-between; }
         .detail-item strong { color: #2c3e50; width: 40%; }
         .detail-item span { width: 60%; color: #555; text-align: right; }
     </style>
@@ -445,7 +445,7 @@
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="tutupModalDetail()">&times;</span>
-            <h3 style="margin-top:0; color:#2c3e50; border-bottom: 2px solid #1abc9c; padding-bottom: 10px;">📋 Detail Data Mustahik</h3>
+            <h3 style="margin-top:0; color:#2c3e50; border-bottom: 2px solid #1abc9c; padding-bottom: 10px;">📋 Detail Data & Riwayat Bantuan Mustahik</h3>
             <div id="modalDetailBody">
                 <!-- Konten Detail Diisi Dinamis -->
             </div>
@@ -620,7 +620,6 @@
             let nikInput = document.getElementById("inputNik").value;
             let namaInput = document.getElementById("inputNama").value;
 
-            // Jika sedang mode tambah baru, cek duplikasi NIK opsional
             if (!editId) {
                 let riwayatPenerima = databaseMustahik.filter(item => item.nik === nikInput);
                 if (riwayatPenerima.length > 0) {
@@ -657,7 +656,6 @@
             };
 
             if (editId) {
-                // Proses Edit / Update
                 let index = databaseMustahik.findIndex(d => d.id == editId);
                 if (index !== -1) {
                     dataForm.id = parseInt(editId);
@@ -665,7 +663,6 @@
                     alert("Data mustahik berhasil diperbarui!");
                 }
             } else {
-                // Proses Tambah Baru
                 dataForm.id = databaseMustahik.length > 0 ? Math.max(...databaseMustahik.map(d => d.id)) + 1 : 1;
                 databaseMustahik.push(dataForm);
                 alert("Data mustahik berhasil disimpan!");
@@ -756,26 +753,62 @@
             let item = databaseMustahik.find(d => d.id === id);
             if (!item) return;
 
+            // Cari semua riwayat bantuan berdasarkan NIK yang sama
+            let riwayatBantuan = databaseMustahik.filter(d => d.nik === item.nik);
+
             let modalBody = document.getElementById("modalDetailBody");
-            modalBody.innerHTML = `
-                <div class="detail-item"><strong>ID Data</strong><span>${item.id}</span></div>
-                <div class="detail-item"><strong>NIK</strong><span>${item.nik}</span></div>
-                <div class="detail-item"><strong>Nama Lengkap</strong><span>${item.nama}</span></div>
-                <div class="detail-item"><strong>Tempat, Tanggal Lahir</strong><span>${item.tempatLahir || '-'}, ${item.tanggalLahir || '-'}</span></div>
-                <div class="detail-item"><strong>Jenis Kelamin</strong><span>${item.jenisKelamin || '-'}</span></div>
-                <div class="detail-item"><strong>Pekerjaan</strong><span>${item.pekerjaan || '-'}</span></div>
-                <div class="detail-item"><strong>Alamat</strong><span>${item.alamat || '-'}</span></div>
-                <div class="detail-item"><strong>No. Telepon / HP</strong><span>${item.telp || '-'}</span></div>
-                <div class="detail-item"><strong>Email</strong><span>${item.email || '-'}</span></div>
-                <div class="detail-item"><strong>Kecamatan / Kelurahan</strong><span>${item.kecamatan} / ${item.kelurahan}</span></div>
-                <div class="detail-item"><strong>Golongan Asnaf</strong><span>${item.asnaf}</span></div>
-                <div class="detail-item"><strong>Jenis Bantuan</strong><span>${item.bantuan}</span></div>
-                <div class="detail-item"><strong>Program</strong><span>${item.program}</span></div>
-                <div class="detail-item"><strong>Periode Bantuan</strong><span>${item.bulan} ${item.tahun}</span></div>
-                <div class="detail-item"><strong>Nominal</strong><span>Rp ${item.nominal.toLocaleString('id-ID')}</span></div>
-                <div class="detail-item"><strong>Keterangan</strong><span>${item.keterangan || '-'}</span></div>
+            
+            let htmlContent = `
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">👤 Informasi Pribadi</h4>
+                    <div class="detail-item"><strong>NIK</strong><span>${item.nik}</span></div>
+                    <div class="detail-item"><strong>Nama Lengkap</strong><span>${item.nama}</span></div>
+                    <div class="detail-item"><strong>Tempat, Tanggal Lahir</strong><span>${item.tempatLahir || '-'}, ${item.tanggalLahir || '-'}</span></div>
+                    <div class="detail-item"><strong>Jenis Kelamin</strong><span>${item.jenisKelamin || '-'}</span></div>
+                    <div class="detail-item"><strong>Pekerjaan</strong><span>${item.pekerjaan || '-'}</span></div>
+                    <div class="detail-item"><strong>Alamat</strong><span>${item.alamat || '-'}</span></div>
+                    <div class="detail-item"><strong>No. Telepon / HP</strong><span>${item.telp || '-'}</span></div>
+                    <div class="detail-item"><strong>Email</strong><span>${item.email || '-'}</span></div>
+                    <div class="detail-item"><strong>Kecamatan / Kelurahan</strong><span>${item.kecamatan} / ${item.kelurahan}</span></div>
+                    <div class="detail-item"><strong>Golongan Asnaf</strong><span>${item.asnaf}</span></div>
+                </div>
+
+                <div>
+                    <h4 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">📦 Riwayat Penerimaan Bantuan (${riwayatBantuan.length} Kali)</h4>
+                    <table style="width: 100%; margin-top: 5px; font-size: 12px;">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Jenis Bantuan</th>
+                                <th>Program</th>
+                                <th>Periode</th>
+                                <th>Nominal</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
             `;
 
+            riwayatBantuan.forEach((rb, idx) => {
+                htmlContent += `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>${rb.bantuan}</td>
+                        <td>${rb.program}</td>
+                        <td>${rb.bulan} ${rb.tahun}</td>
+                        <td>Rp ${rb.nominal.toLocaleString('id-ID')}</td>
+                        <td>${rb.keterangan || '-'}</td>
+                    </tr>
+                `;
+            });
+
+            htmlContent += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            modalBody.innerHTML = htmlContent;
             document.getElementById("detailModal").style.display = "flex";
         }
 
