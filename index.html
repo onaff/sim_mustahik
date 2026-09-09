@@ -46,12 +46,18 @@
         .btn-danger:hover { background-color: #c0392b; }
         .btn-success { background-color: #27ae60; }
         .btn-success:hover { background-color: #2ecc71; }
+        .btn-info { background-color: #3498db; }
+        .btn-info:hover { background-color: #2980b9; }
+        .btn-warning { background-color: #f39c12; color: white; }
+        .btn-warning:hover { background-color: #d35400; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px;}
         table, th, td { border: 1px solid #ddd; }
         th, td { padding: 10px; text-align: left; }
         th { background-color: #2c3e50; color: white; }
         tr:nth-child(even) { background-color: #f9f9f9; }
+        tr.clickable-row { cursor: pointer; }
+        tr.clickable-row:hover { background-color: #f1f2f6; }
         
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; width: 100%; }
         .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; border-bottom: 4px solid #1abc9c;}
@@ -59,6 +65,16 @@
         .stat-card p { margin: 0; font-size: 24px; font-weight: bold; color: #2c3e50; }
         
         .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; }
+
+        /* MODAL DETAIL BY NAME */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fefefe; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; animation: slideDown 0.3s; }
+        @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; margin-top: -10px; }
+        .close-btn:hover { color: #000; }
+        .detail-item { margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 8px; display: flex; justify-content: space-between; }
+        .detail-item strong { color: #2c3e50; width: 40%; }
+        .detail-item span { width: 60%; color: #555; text-align: right; }
     </style>
 </head>
 <body>
@@ -281,7 +297,7 @@
 
             <div class="card">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                    <button class="btn" onclick="showPage('input', document.querySelectorAll('.nav-link')[2])">➕ Tambah Data Baru</button>
+                    <button class="btn" onclick="bukaFormTambah()">➕ Tambah Data Baru</button>
                     <button class="btn btn-success" onclick="exportExcel('tabelData', 'Data_Mustahik_Salatiga')">📥 Export ke Excel</button>
                 </div>
                 
@@ -292,7 +308,7 @@
                                 <th>ID</th><th>NIK</th><th>NAMA</th>
                                 <th>KECAMATAN</th><th>KELURAHAN</th><th>ASNAF</th>
                                 <th>BANTUAN</th><th>PROGRAM</th><th>TAHUN</th><th>BULAN</th><th>NOMINAL</th>
-                                <th class="no-export">AKSI</th>
+                                <th class="no-export" style="text-align: center;">AKSI</th>
                             </tr>
                         </thead>
                         <tbody id="tableBodyData">
@@ -305,9 +321,10 @@
 
         <!-- INPUT DATA PAGE (TAB KETIGA) -->
         <div id="input" class="page-section">
-            <h2>Form Input Data Mustahik</h2>
+            <h2 id="formTitle">Form Input Data Mustahik</h2>
             <div class="card">
                 <form id="formInput" onsubmit="simpanDataBaru(event)">
+                    <input type="hidden" id="editId" value="">
                     <input type="hidden" id="nomorUrut" name="no">
 
                     <div class="form-row">
@@ -416,12 +433,23 @@
                     
                     <div class="form-group"><label>KETERANGAN</label><textarea id="inputKeterangan" rows="2" placeholder="Keterangan tambahan..."></textarea></div>
 
-                    <button type="submit" class="btn">💾 Simpan Data</button>
-                    <button type="reset" class="btn btn-danger">❌ Batal</button>
+                    <button type="submit" class="btn" id="btnSimpan">💾 Simpan Data</button>
+                    <button type="button" class="btn btn-danger" onclick="batalForm()">❌ Batal</button>
                 </form>
             </div>
         </div>
 
+    </div>
+
+    <!-- MODAL DETAIL BY NAME -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="tutupModalDetail()">&times;</span>
+            <h3 style="margin-top:0; color:#2c3e50; border-bottom: 2px solid #1abc9c; padding-bottom: 10px;">📋 Detail Data Mustahik</h3>
+            <div id="modalDetailBody">
+                <!-- Konten Detail Diisi Dinamis -->
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->
@@ -446,10 +474,22 @@
         const listAsnaf = ['FAKIR', 'MISKIN', 'AMIL', 'MUALAF', 'RIQAB', 'GHARIM', 'SABILILLAH', 'IBNU SABIL'];
 
         let databaseMustahik = [
-            { id: 1, nik: "337301010190001", nama: "Ahmad", kecamatan: "ARGOMULYO", kelurahan: "Tegalrejo", asnaf: "FAKIR", bantuan: "KONSUMTIF", program: "SALATIGA SEHAT", tahun: "2026", bulan: "Januari", nominal: 500000 },
-            { id: 2, nik: "337302020290002", nama: "Budi Santoso", kecamatan: "TINGKIR", kelurahan: "Tingkir Lor", asnaf: "MISKIN", bantuan: "RTLH", program: "SALATIGA PEDULI", tahun: "2026", bulan: "Februari", nominal: 2000000 },
-            { id: 3, nik: "337303030390003", nama: "Siti Aminah", kecamatan: "SIDOREJO", kelurahan: "Salatiga", asnaf: "GHARIM", bantuan: "EKONOMI PRODUKTIF", program: "SALATIGA MAKMUR", tahun: "2026", bulan: "Maret", nominal: 1500000 },
-            { id: 4, nik: "337304040490004", nama: "Joko Widodo", kecamatan: "SIDOMUKTI", kelurahan: "Mangunsari", asnaf: "MUALAF", bantuan: "KONSUMTIF", program: "SALATIGA CERDAS", tahun: "2026", bulan: "April", nominal: 750000 }
+            { 
+                id: 1, nik: "337301010190001", nama: "Ahmad", tempatLahir: "Salatiga", tanggalLahir: "1990-01-01", jenisKelamin: "Laki-laki", pekerjaan: "Buruh", alamat: "Jl. Argomulyo No. 10", telp: "081234567890", email: "ahmad@gmail.com", 
+                kecamatan: "ARGOMULYO", kelurahan: "Tegalrejo", asnaf: "FAKIR", bantuan: "KONSUMTIF", program: "SALATIGA SEHAT", tahun: "2026", bulan: "Januari", nominal: 500000, keterangan: "Sehat walafiat" 
+            },
+            { 
+                id: 2, nik: "337302020290002", nama: "Budi Santoso", tempatLahir: "Semarang", tanggalLahir: "1985-05-12", jenisKelamin: "Laki-laki", pekerjaan: "Petani", alamat: "Jl. Tingkir Lor No. 5", telp: "085678901234", email: "budi@gmail.com", 
+                kecamatan: "TINGKIR", kelurahan: "Tingkir Lor", asnaf: "MISKIN", bantuan: "RTLH", program: "SALATIGA PEDULI", tahun: "2026", bulan: "Februari", nominal: 2000000, keterangan: "Bantuan renovasi rumah" 
+            },
+            { 
+                id: 3, nik: "337303030390003", nama: "Siti Aminah", tempatLahir: "Salatiga", tanggalLahir: "1992-08-20", jenisKelamin: "Perempuan", pekerjaan: "Pedagang Kecil", alamat: "Jl. Diponegoro No. 15", telp: "081987654321", email: "siti@gmail.com", 
+                kecamatan: "SIDOREJO", kelurahan: "Salatiga", asnaf: "GHARIM", bantuan: "EKONOMI PRODUKTIF", program: "SALATIGA MAKMUR", tahun: "2026", bulan: "Maret", nominal: 1500000, keterangan: "Modal warung" 
+            },
+            { 
+                id: 4, nik: "337304040490004", nama: "Joko Widodo", tempatLahir: "Surakarta", tanggalLahir: "1978-06-21", jenisKelamin: "Laki-laki", pekerjaan: "Wiraswasta", alamat: "Jl. Mangunsari No. 8", telp: "081122334455", email: "joko@gmail.com", 
+                kecamatan: "SIDOMUKTI", kelurahan: "Mangunsari", asnaf: "MUALAF", bantuan: "KONSUMTIF", program: "SALATIGA CERDAS", tahun: "2026", bulan: "April", nominal: 750000, keterangan: "Bantuan pendidikan anak" 
+            }
         ];
 
         let lineChart, barKecamatanChart, barKelurahanChart, pieProgramChart, barAsnafChart;
@@ -460,7 +500,6 @@
             document.getElementById("appSidebar").style.display = "block";
             document.getElementById("appContent").style.display = "block";
             
-            // Resize ulang grafik secara dinamis agar presisi setelah container dimunculkan
             setTimeout(() => {
                 [lineChart, barKecamatanChart, barKelurahanChart, pieProgramChart, barAsnafChart].forEach(chart => {
                     if (chart) chart.resize();
@@ -477,7 +516,7 @@
             document.getElementById("password").value = "";
         }
 
-        function updateKelurahanOptions() {
+        function updateKelurahanOptions(selectedKel = "") {
             let kecamatanSelect = document.getElementById("inputKecamatan");
             let kelurahanSelect = document.getElementById("inputKelurahan");
             let selectedKec = kecamatanSelect.value;
@@ -488,6 +527,7 @@
                     let opt = document.createElement("option");
                     opt.value = kel;
                     opt.innerHTML = kel;
+                    if (kel === selectedKel) opt.selected = true;
                     kelurahanSelect.appendChild(opt);
                 });
             }
@@ -546,9 +586,7 @@
             document.getElementById(pageId).classList.add('active');
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
             if(element) element.classList.add('active');
-            if(pageId === 'input') setNomorOtomatis();
-
-            // Sempurnakan ukuran chart jika kembali ke tab dashboard
+            
             setTimeout(() => {
                 [lineChart, barKecamatanChart, barKelurahanChart, pieProgramChart, barAsnafChart].forEach(chart => {
                     if (chart) chart.resize();
@@ -556,30 +594,57 @@
             }, 50);
         }
 
+        function bukaFormTambah() {
+            document.getElementById("formInput").reset();
+            document.getElementById("editId").value = "";
+            document.getElementById("formTitle").innerText = "Form Input Data Mustahik";
+            document.getElementById("btnSimpan").innerText = "💾 Simpan Data";
+            setNomorOtomatis();
+            updateKelurahanOptions();
+            showPage('input', document.querySelectorAll('.nav-link')[2]);
+        }
+
+        function batalForm() {
+            document.getElementById("formInput").reset();
+            document.getElementById("editId").value = "";
+            document.getElementById("formTitle").innerText = "Form Input Data Mustahik";
+            document.getElementById("btnSimpan").innerText = "💾 Simpan Data";
+            setNomorOtomatis();
+            showPage('data', document.querySelectorAll('.nav-link')[1]);
+        }
+
         function simpanDataBaru(event) {
             event.preventDefault();
             
+            let editId = document.getElementById("editId").value;
             let nikInput = document.getElementById("inputNik").value;
             let namaInput = document.getElementById("inputNama").value;
 
-            let riwayatPenerima = databaseMustahik.filter(item => item.nik === nikInput);
-            if (riwayatPenerima.length > 0) {
-                let pesanRiwayat = `Perhatian: NIK ${nikInput} atas nama ${namaInput} tercatat PERNAH MENERIMA BANTUAN sebelumnya:\n`;
-                riwayatPenerima.forEach((r) => {
-                    pesanRiwayat += `• Program: ${r.program} (${r.bulan} ${r.tahun}) - Rp ${r.nominal.toLocaleString('id-ID')}\n`;
-                });
-                pesanRiwayat += `\nApakah Anda tetap ingin menginput data bantuan baru untuk NIK ini?`;
+            // Jika sedang mode tambah baru, cek duplikasi NIK opsional
+            if (!editId) {
+                let riwayatPenerima = databaseMustahik.filter(item => item.nik === nikInput);
+                if (riwayatPenerima.length > 0) {
+                    let pesanRiwayat = `Perhatian: NIK ${nikInput} atas nama ${namaInput} tercatat PERNAH MENERIMA BANTUAN sebelumnya:\n`;
+                    riwayatPenerima.forEach((r) => {
+                        pesanRiwayat += `• Program: ${r.program} (${r.bulan} ${r.tahun}) - Rp ${r.nominal.toLocaleString('id-ID')}\n`;
+                    });
+                    pesanRiwayat += `\nApakah Anda tetap ingin menginput data bantuan baru untuk NIK ini?`;
 
-                let konfirmasi = confirm(pesanRiwayat);
-                if (!konfirmasi) {
-                    return; 
+                    let konfirmasi = confirm(pesanRiwayat);
+                    if (!konfirmasi) return; 
                 }
             }
 
-            let newData = {
-                id: databaseMustahik.length + 1, 
+            let dataForm = {
                 nik: nikInput,
                 nama: namaInput,
+                tempatLahir: document.getElementById("inputTempatLahir").value,
+                tanggalLahir: document.getElementById("inputTanggalLahir").value,
+                jenisKelamin: document.querySelector('input[name="jk"]:checked').value,
+                pekerjaan: document.getElementById("inputPekerjaan").value,
+                alamat: document.getElementById("inputAlamat").value,
+                telp: document.getElementById("inputTelp").value,
+                email: document.getElementById("inputEmail").value,
                 kecamatan: document.getElementById("inputKecamatan").value,
                 kelurahan: document.getElementById("inputKelurahan").value,
                 asnaf: document.getElementById("inputAsnaf").value,
@@ -587,16 +652,75 @@
                 program: document.getElementById("inputProgram").value,
                 tahun: document.getElementById("inputTahun").value,
                 bulan: document.getElementById("inputBulan").value,
-                nominal: parseInt(document.getElementById("inputNominal").value) || 0
+                nominal: parseInt(document.getElementById("inputNominal").value) || 0,
+                keterangan: document.getElementById("inputKeterangan").value
             };
 
-            databaseMustahik.push(newData);
-            alert("Data mustahik berhasil disimpan!");
-            document.getElementById("formInput").reset();
-            setNomorOtomatis();
-            updateKelurahanOptions();
+            if (editId) {
+                // Proses Edit / Update
+                let index = databaseMustahik.findIndex(d => d.id == editId);
+                if (index !== -1) {
+                    dataForm.id = parseInt(editId);
+                    databaseMustahik[index] = dataForm;
+                    alert("Data mustahik berhasil diperbarui!");
+                }
+            } else {
+                // Proses Tambah Baru
+                dataForm.id = databaseMustahik.length > 0 ? Math.max(...databaseMustahik.map(d => d.id)) + 1 : 1;
+                databaseMustahik.push(dataForm);
+                alert("Data mustahik berhasil disimpan!");
+            }
+
+            batalForm();
             renderTabel(databaseMustahik);
             refreshDashboard(databaseMustahik);
+        }
+
+        function editData(id) {
+            let item = databaseMustahik.find(d => d.id === id);
+            if (!item) return;
+
+            document.getElementById("editId").value = item.id;
+            document.getElementById("inputNik").value = item.nik;
+            document.getElementById("inputNama").value = item.nama;
+            document.getElementById("inputTempatLahir").value = item.tempatLahir || "";
+            document.getElementById("inputTanggalLahir").value = item.tanggalLahir || "";
+            
+            let jkRadios = document.querySelectorAll('input[name="jk"]');
+            jkRadios.forEach(radio => {
+                if (radio.value === item.jenisKelamin) radio.checked = true;
+            });
+
+            document.getElementById("inputPekerjaan").value = item.pekerjaan || "";
+            document.getElementById("inputAlamat").value = item.alamat || "";
+            document.getElementById("inputTelp").value = item.telp || "";
+            document.getElementById("inputEmail").value = item.email || "";
+            document.getElementById("inputKecamatan").value = item.kecamatan;
+            updateKelurahanOptions(item.kelurahan);
+            document.getElementById("inputBantuan").value = item.bantuan;
+            document.getElementById("inputProgram").value = item.program;
+            document.getElementById("inputAsnaf").value = item.asnaf;
+            document.getElementById("inputTahun").value = item.tahun;
+            document.getElementById("inputBulan").value = item.bulan;
+            document.getElementById("inputNominal").value = item.nominal;
+            document.getElementById("inputKeterangan").value = item.keterangan || "";
+
+            document.getElementById("formTitle").innerText = "Edit Data Mustahik (ID: " + item.id + ")";
+            document.getElementById("btnSimpan").innerText = "💾 Perbarui Data";
+            showPage('input', document.querySelectorAll('.nav-link')[2]);
+        }
+
+        function hapusData(id) {
+            let item = databaseMustahik.find(d => d.id === id);
+            if (!item) return;
+
+            let konfirmasi = confirm(`Apakah Anda yakin ingin menghapus data mustahik:\nID: ${item.id} - NIK: ${item.nik} (${item.nama})?`);
+            if (konfirmasi) {
+                databaseMustahik = databaseMustahik.filter(d => d.id !== id);
+                renderTabel(databaseMustahik);
+                refreshDashboard(databaseMustahik);
+                alert("Data berhasil dihapus!");
+            }
         }
 
         function renderTabel(data) {
@@ -604,10 +728,12 @@
             tbody.innerHTML = "";
             data.forEach((item) => {
                 let tr = document.createElement("tr");
+                tr.className = "clickable-row";
+                tr.onclick = function() { tampilkanDetailMustahik(item.id); };
                 tr.innerHTML = `
                     <td>${item.id}</td>
                     <td>${item.nik}</td>
-                    <td>${item.nama}</td>
+                    <td><strong>${item.nama}</strong></td>
                     <td>${item.kecamatan}</td>
                     <td>${item.kelurahan}</td>
                     <td>${item.asnaf}</td>
@@ -616,10 +742,52 @@
                     <td>${item.tahun}</td>
                     <td>${item.bulan}</td>
                     <td>Rp ${item.nominal.toLocaleString('id-ID')}</td>
-                    <td class="no-export"><button class="btn" style="padding: 5px; font-size:11px;">Edit</button></td>
+                    <td class="no-export" style="text-align: center; white-space: nowrap;" onclick="event.stopPropagation()">
+                        <button class="btn btn-info" style="padding: 4px 8px; font-size:11px;" onclick="tampilkanDetailMustahik(${item.id})">🔍</button>
+                        <button class="btn btn-warning" style="padding: 4px 8px; font-size:11px;" onclick="editData(${item.id})">✏️</button>
+                        <button class="btn btn-danger" style="padding: 4px 8px; font-size:11px;" onclick="hapusData(${item.id})">🗑️</button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        function tampilkanDetailMustahik(id) {
+            let item = databaseMustahik.find(d => d.id === id);
+            if (!item) return;
+
+            let modalBody = document.getElementById("modalDetailBody");
+            modalBody.innerHTML = `
+                <div class="detail-item"><strong>ID Data</strong><span>${item.id}</span></div>
+                <div class="detail-item"><strong>NIK</strong><span>${item.nik}</span></div>
+                <div class="detail-item"><strong>Nama Lengkap</strong><span>${item.nama}</span></div>
+                <div class="detail-item"><strong>Tempat, Tanggal Lahir</strong><span>${item.tempatLahir || '-'}, ${item.tanggalLahir || '-'}</span></div>
+                <div class="detail-item"><strong>Jenis Kelamin</strong><span>${item.jenisKelamin || '-'}</span></div>
+                <div class="detail-item"><strong>Pekerjaan</strong><span>${item.pekerjaan || '-'}</span></div>
+                <div class="detail-item"><strong>Alamat</strong><span>${item.alamat || '-'}</span></div>
+                <div class="detail-item"><strong>No. Telepon / HP</strong><span>${item.telp || '-'}</span></div>
+                <div class="detail-item"><strong>Email</strong><span>${item.email || '-'}</span></div>
+                <div class="detail-item"><strong>Kecamatan / Kelurahan</strong><span>${item.kecamatan} / ${item.kelurahan}</span></div>
+                <div class="detail-item"><strong>Golongan Asnaf</strong><span>${item.asnaf}</span></div>
+                <div class="detail-item"><strong>Jenis Bantuan</strong><span>${item.bantuan}</span></div>
+                <div class="detail-item"><strong>Program</strong><span>${item.program}</span></div>
+                <div class="detail-item"><strong>Periode Bantuan</strong><span>${item.bulan} ${item.tahun}</span></div>
+                <div class="detail-item"><strong>Nominal</strong><span>Rp ${item.nominal.toLocaleString('id-ID')}</span></div>
+                <div class="detail-item"><strong>Keterangan</strong><span>${item.keterangan || '-'}</span></div>
+            `;
+
+            document.getElementById("detailModal").style.display = "flex";
+        }
+
+        function tutupModalDetail() {
+            document.getElementById("detailModal").style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            let modal = document.getElementById("detailModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
         }
 
         function filterTableData() {
@@ -718,7 +886,6 @@
 
         window.onload = function() {
             setNomorOtomatis();
-            updateKelurahanOptions(); 
             updateSearchKelurahanOptions();
             updateDashboardKelurahanOptions();
             renderTabel(databaseMustahik);
