@@ -461,28 +461,32 @@
         const listProgram = ['SALATIGA CERDAS', 'SALATIGA SEHAT', 'SALATIGA PEDULI', 'SALATIGA MAKMUR', 'SALATIGA BAROKAH'];
         const listAsnaf = ['FAKIR', 'MISKIN', 'AMIL', 'MUALAF', 'RIQAB', 'GHARIM', 'SABILILLAH', 'IBNU SABIL'];
 
+        // Contoh database dengan mustahik (Ahmad: NIK 337301010190001) yang menerima beberapa bantuan berbeda waktu & program
         let databaseMustahik = [
             { 
                 id: 1, nik: "337301010190001", nama: "Ahmad", tempatLahir: "Salatiga", tanggalLahir: "1990-01-01", jenisKelamin: "Laki-laki", pekerjaan: "Buruh", alamat: "Jl. Argomulyo No. 10", telp: "081234567890", email: "ahmad@gmail.com", 
-                kecamatan: "ARGOMULYO", kelurahan: "Tegalrejo", asnaf: "FAKIR", bantuan: "KONSUMTIF", program: "SALATIGA SEHAT", tanggalBantuan: "2026-01-15", tahun: "2026", bulan: "Januari", nominal: 500000, keterangan: "Sehat walafiat" 
+                kecamatan: "ARGOMULYO", kelurahan: "Tegalrejo", asnaf: "FAKIR", bantuan: "KONSUMTIF", program: "SALATIGA SEHAT", tanggalBantuan: "2024-03-12", tahun: "2024", bulan: "Maret", nominal: 500000, keterangan: "Bantuan pengobatan rutin" 
             },
             { 
-                id: 2, nik: "337302020290002", nama: "Budi Santoso", tempatLahir: "Semarang", tanggalLahir: "1985-05-12", jenisKelamin: "Laki-laki", pekerjaan: "Petani", alamat: "Jl. Tingkir Lor No. 5", telp: "085678901234", email: "budi@gmail.com", 
+                id: 2, nik: "337301010190001", nama: "Ahmad", tempatLahir: "Salatiga", tanggalLahir: "1990-01-01", jenisKelamin: "Laki-laki", pekerjaan: "Buruh", alamat: "Jl. Argomulyo No. 10", telp: "081234567890", email: "ahmad@gmail.com", 
+                kecamatan: "ARGOMULYO", kelurahan: "Tegalrejo", asnaf: "FAKIR", bantuan: "EKONOMI PRODUKTIF", program: "SALATIGA MAKMUR", tanggalBantuan: "2025-06-18", tahun: "2025", bulan: "Juni", nominal: 1500000, keterangan: "Bantuan modal usaha dagang kecil" 
+            },
+            { 
+                id: 3, nik: "337301010190001", nama: "Ahmad", tempatLahir: "Salatiga", tanggalLahir: "1990-01-01", jenisKelamin: "Laki-laki", pekerjaan: "Buruh", alamat: "Jl. Argomulyo No. 10", telp: "081234567890", email: "ahmad@gmail.com", 
+                kecamatan: "ARGOMULYO", kelurahan: "Tegalrejo", asnaf: "FAKIR", bantuan: "KONSUMTIF", program: "SALATIGA CERDAS", tanggalBantuan: "2026-01-15", tahun: "2026", bulan: "Januari", nominal: 750000, keterangan: "Bantuan pendidikan anak sekolah" 
+            },
+            { 
+                id: 4, nik: "337302020290002", nama: "Budi Santoso", tempatLahir: "Semarang", tanggalLahir: "1985-05-12", jenisKelamin: "Laki-laki", pekerjaan: "Petani", alamat: "Jl. Tingkir Lor No. 5", telp: "085678901234", email: "budi@gmail.com", 
                 kecamatan: "TINGKIR", kelurahan: "Tingkir Lor", asnaf: "MISKIN", bantuan: "RTLH", program: "SALATIGA PEDULI", tanggalBantuan: "2026-02-10", tahun: "2026", bulan: "Februari", nominal: 2000000, keterangan: "Bantuan renovasi rumah" 
             },
             { 
-                id: 3, nik: "337303030390003", nama: "Siti Aminah", tempatLahir: "Salatiga", tanggalLahir: "1992-08-20", jenisKelamin: "Perempuan", pekerjaan: "Pedagang Kecil", alamat: "Jl. Diponegoro No. 15", telp: "081987654321", email: "siti@gmail.com", 
+                id: 5, nik: "337303030390003", nama: "Siti Aminah", tempatLahir: "Salatiga", tanggalLahir: "1992-08-20", jenisKelamin: "Perempuan", pekerjaan: "Pedagang Kecil", alamat: "Jl. Diponegoro No. 15", telp: "081987654321", email: "siti@gmail.com", 
                 kecamatan: "SIDOREJO", kelurahan: "Salatiga", asnaf: "GHARIM", bantuan: "EKONOMI PRODUKTIF", program: "SALATIGA MAKMUR", tanggalBantuan: "2026-03-05", tahun: "2026", bulan: "Maret", nominal: 1500000, keterangan: "Modal warung" 
-            },
-            { 
-                id: 4, nik: "337304040490004", nama: "Joko Widodo", tempatLahir: "Surakarta", tanggalLahir: "1978-06-21", jenisKelamin: "Laki-laki", pekerjaan: "Wiraswasta", alamat: "Jl. Mangunsari No. 8", telp: "081122334455", email: "joko@gmail.com", 
-                kecamatan: "SIDOMUKTI", kelurahan: "Mangunsari", asnaf: "MUALAF", bantuan: "KONSUMTIF", program: "SALATIGA CERDAS", tanggalBantuan: "2026-04-12", tahun: "2026", bulan: "April", nominal: 750000, keterangan: "Bantuan pendidikan anak" 
             }
         ];
 
         let lineChart, barKecamatanChart, barKelurahanChart, pieProgramChart, barAsnafChart;
 
-        // Fungsi pembantu untuk format tanggal YYYY-MM-DD menjadi DD-MM-YYYY
         function formatTanggalID(tanggalStr) {
             if (!tanggalStr) return '-';
             let parts = tanggalStr.split('-');
