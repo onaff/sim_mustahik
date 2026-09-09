@@ -307,7 +307,7 @@
                             <tr>
                                 <th>ID</th><th>NIK</th><th>NAMA</th>
                                 <th>KECAMATAN</th><th>KELURAHAN</th><th>ASNAF</th>
-                                <th>BANTUAN</th><th>PROGRAM</th><th>TAHUN</th><th>BULAN</th><th>NOMINAL</th>
+                                <th>BANTUAN</th><th>PROGRAM</th><th>TANGGAL BANTUAN</th><th>NOMINAL</th>
                                 <th class="no-export" style="text-align: center;">AKSI</th>
                             </tr>
                         </thead>
@@ -410,20 +410,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>TAHUN KEGIATAN</label>
-                            <select id="inputTahun" required>
-                                <option value="">-- Pilih Tahun --</option>
-                                <option value="2026">2026</option>
-                                <option value="2025">2025</option>
-                                <option value="2024">2024</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>BULAN KEGIATAN</label>
-                            <select id="inputBulan" required>
-                                <option value="">-- Pilih Bulan --</option>
-                                <option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option><option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option><option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
-                            </select>
+                            <label>TANGGAL PEMBERIAN BANTUAN</label>
+                            <input type="date" id="inputTanggalBantuan" required>
                         </div>
                         <div class="form-group">
                             <label>NOMINAL (Rp)</label>
@@ -476,23 +464,33 @@
         let databaseMustahik = [
             { 
                 id: 1, nik: "337301010190001", nama: "Ahmad", tempatLahir: "Salatiga", tanggalLahir: "1990-01-01", jenisKelamin: "Laki-laki", pekerjaan: "Buruh", alamat: "Jl. Argomulyo No. 10", telp: "081234567890", email: "ahmad@gmail.com", 
-                kecamatan: "ARGOMULYO", kelurahan: "Tegalrejo", asnaf: "FAKIR", bantuan: "KONSUMTIF", program: "SALATIGA SEHAT", tahun: "2026", bulan: "Januari", nominal: 500000, keterangan: "Sehat walafiat" 
+                kecamatan: "ARGOMULYO", kelurahan: "Tegalrejo", asnaf: "FAKIR", bantuan: "KONSUMTIF", program: "SALATIGA SEHAT", tanggalBantuan: "2026-01-15", tahun: "2026", bulan: "Januari", nominal: 500000, keterangan: "Sehat walafiat" 
             },
             { 
                 id: 2, nik: "337302020290002", nama: "Budi Santoso", tempatLahir: "Semarang", tanggalLahir: "1985-05-12", jenisKelamin: "Laki-laki", pekerjaan: "Petani", alamat: "Jl. Tingkir Lor No. 5", telp: "085678901234", email: "budi@gmail.com", 
-                kecamatan: "TINGKIR", kelurahan: "Tingkir Lor", asnaf: "MISKIN", bantuan: "RTLH", program: "SALATIGA PEDULI", tahun: "2026", bulan: "Februari", nominal: 2000000, keterangan: "Bantuan renovasi rumah" 
+                kecamatan: "TINGKIR", kelurahan: "Tingkir Lor", asnaf: "MISKIN", bantuan: "RTLH", program: "SALATIGA PEDULI", tanggalBantuan: "2026-02-10", tahun: "2026", bulan: "Februari", nominal: 2000000, keterangan: "Bantuan renovasi rumah" 
             },
             { 
                 id: 3, nik: "337303030390003", nama: "Siti Aminah", tempatLahir: "Salatiga", tanggalLahir: "1992-08-20", jenisKelamin: "Perempuan", pekerjaan: "Pedagang Kecil", alamat: "Jl. Diponegoro No. 15", telp: "081987654321", email: "siti@gmail.com", 
-                kecamatan: "SIDOREJO", kelurahan: "Salatiga", asnaf: "GHARIM", bantuan: "EKONOMI PRODUKTIF", program: "SALATIGA MAKMUR", tahun: "2026", bulan: "Maret", nominal: 1500000, keterangan: "Modal warung" 
+                kecamatan: "SIDOREJO", kelurahan: "Salatiga", asnaf: "GHARIM", bantuan: "EKONOMI PRODUKTIF", program: "SALATIGA MAKMUR", tanggalBantuan: "2026-03-05", tahun: "2026", bulan: "Maret", nominal: 1500000, keterangan: "Modal warung" 
             },
             { 
                 id: 4, nik: "337304040490004", nama: "Joko Widodo", tempatLahir: "Surakarta", tanggalLahir: "1978-06-21", jenisKelamin: "Laki-laki", pekerjaan: "Wiraswasta", alamat: "Jl. Mangunsari No. 8", telp: "081122334455", email: "joko@gmail.com", 
-                kecamatan: "SIDOMUKTI", kelurahan: "Mangunsari", asnaf: "MUALAF", bantuan: "KONSUMTIF", program: "SALATIGA CERDAS", tahun: "2026", bulan: "April", nominal: 750000, keterangan: "Bantuan pendidikan anak" 
+                kecamatan: "SIDOMUKTI", kelurahan: "Mangunsari", asnaf: "MUALAF", bantuan: "KONSUMTIF", program: "SALATIGA CERDAS", tanggalBantuan: "2026-04-12", tahun: "2026", bulan: "April", nominal: 750000, keterangan: "Bantuan pendidikan anak" 
             }
         ];
 
         let lineChart, barKecamatanChart, barKelurahanChart, pieProgramChart, barAsnafChart;
+
+        // Fungsi pembantu untuk format tanggal YYYY-MM-DD menjadi DD-MM-YYYY
+        function formatTanggalID(tanggalStr) {
+            if (!tanggalStr) return '-';
+            let parts = tanggalStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return tanggalStr;
+        }
 
         function prosesLogin(event) {
             event.preventDefault();
@@ -619,13 +617,18 @@
             let editId = document.getElementById("editId").value;
             let nikInput = document.getElementById("inputNik").value;
             let namaInput = document.getElementById("inputNama").value;
+            let tglBantuanInput = document.getElementById("inputTanggalBantuan").value; // Format: YYYY-MM-DD
+
+            let tahunBantuan = tglBantuanInput.split("-")[0];
+            let bulanIndex = parseInt(tglBantuanInput.split("-")[1]) - 1;
+            let bulanBantuan = listBulan[bulanIndex] || "Januari";
 
             if (!editId) {
                 let riwayatPenerima = databaseMustahik.filter(item => item.nik === nikInput);
                 if (riwayatPenerima.length > 0) {
                     let pesanRiwayat = `Perhatian: NIK ${nikInput} atas nama ${namaInput} tercatat PERNAH MENERIMA BANTUAN sebelumnya:\n`;
                     riwayatPenerima.forEach((r) => {
-                        pesanRiwayat += `• Program: ${r.program} (${r.bulan} ${r.tahun}) - Rp ${r.nominal.toLocaleString('id-ID')}\n`;
+                        pesanRiwayat += `• Program: ${r.program} (${formatTanggalID(r.tanggalBantuan)}) - Rp ${r.nominal.toLocaleString('id-ID')}\n`;
                     });
                     pesanRiwayat += `\nApakah Anda tetap ingin menginput data bantuan baru untuk NIK ini?`;
 
@@ -649,8 +652,9 @@
                 asnaf: document.getElementById("inputAsnaf").value,
                 bantuan: document.getElementById("inputBantuan").value,
                 program: document.getElementById("inputProgram").value,
-                tahun: document.getElementById("inputTahun").value,
-                bulan: document.getElementById("inputBulan").value,
+                tanggalBantuan: tglBantuanInput,
+                tahun: tahunBantuan,
+                bulan: bulanBantuan,
                 nominal: parseInt(document.getElementById("inputNominal").value) || 0,
                 keterangan: document.getElementById("inputKeterangan").value
             };
@@ -697,8 +701,7 @@
             document.getElementById("inputBantuan").value = item.bantuan;
             document.getElementById("inputProgram").value = item.program;
             document.getElementById("inputAsnaf").value = item.asnaf;
-            document.getElementById("inputTahun").value = item.tahun;
-            document.getElementById("inputBulan").value = item.bulan;
+            document.getElementById("inputTanggalBantuan").value = item.tanggalBantuan || "";
             document.getElementById("inputNominal").value = item.nominal;
             document.getElementById("inputKeterangan").value = item.keterangan || "";
 
@@ -736,8 +739,7 @@
                     <td>${item.asnaf}</td>
                     <td>${item.bantuan}</td>
                     <td>${item.program}</td>
-                    <td>${item.tahun}</td>
-                    <td>${item.bulan}</td>
+                    <td>${formatTanggalID(item.tanggalBantuan)}</td>
                     <td>Rp ${item.nominal.toLocaleString('id-ID')}</td>
                     <td class="no-export" style="text-align: center; white-space: nowrap;" onclick="event.stopPropagation()">
                         <button class="btn btn-info" style="padding: 4px 8px; font-size:11px;" onclick="tampilkanDetailMustahik(${item.id})">🔍</button>
@@ -753,7 +755,6 @@
             let item = databaseMustahik.find(d => d.id === id);
             if (!item) return;
 
-            // Cari semua riwayat bantuan berdasarkan NIK yang sama
             let riwayatBantuan = databaseMustahik.filter(d => d.nik === item.nik);
 
             let modalBody = document.getElementById("modalDetailBody");
@@ -763,7 +764,7 @@
                     <h4 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">👤 Informasi Pribadi</h4>
                     <div class="detail-item"><strong>NIK</strong><span>${item.nik}</span></div>
                     <div class="detail-item"><strong>Nama Lengkap</strong><span>${item.nama}</span></div>
-                    <div class="detail-item"><strong>Tempat, Tanggal Lahir</strong><span>${item.tempatLahir || '-'}, ${item.tanggalLahir || '-'}</span></div>
+                    <div class="detail-item"><strong>Tempat, Tanggal Lahir</strong><span>${item.tempatLahir || '-'}, ${formatTanggalID(item.tanggalLahir)}</span></div>
                     <div class="detail-item"><strong>Jenis Kelamin</strong><span>${item.jenisKelamin || '-'}</span></div>
                     <div class="detail-item"><strong>Pekerjaan</strong><span>${item.pekerjaan || '-'}</span></div>
                     <div class="detail-item"><strong>Alamat</strong><span>${item.alamat || '-'}</span></div>
@@ -781,7 +782,7 @@
                                 <th>No</th>
                                 <th>Jenis Bantuan</th>
                                 <th>Program</th>
-                                <th>Periode</th>
+                                <th>Tanggal Pemberian</th>
                                 <th>Nominal</th>
                                 <th>Keterangan</th>
                             </tr>
@@ -795,7 +796,7 @@
                         <td>${idx + 1}</td>
                         <td>${rb.bantuan}</td>
                         <td>${rb.program}</td>
-                        <td>${rb.bulan} ${rb.tahun}</td>
+                        <td>${formatTanggalID(rb.tanggalBantuan)}</td>
                         <td>Rp ${rb.nominal.toLocaleString('id-ID')}</td>
                         <td>${rb.keterangan || '-'}</td>
                     </tr>
@@ -834,8 +835,8 @@
 
             let filtered = databaseMustahik.filter(item => {
                 let matchNikNama = item.nik.toLowerCase().includes(valNikNama) || item.nama.toLowerCase().includes(valNikNama);
-                let matchTahun = valTahun === "" || item.tahun.toLowerCase() === valTahun;
-                let matchBulan = valBulan === "" || item.bulan.toLowerCase() === valBulan;
+                let matchTahun = valTahun === "" || (item.tahun && item.tahun.toLowerCase() === valTahun);
+                let matchBulan = valBulan === "" || (item.bulan && item.bulan.toLowerCase() === valBulan);
                 let matchProgram = valProgram === "" || item.program.toLowerCase() === valProgram;
                 let matchKec = valKec === "" || item.kecamatan.toLowerCase() === valKec;
                 let matchKel = valKel === "" || item.kelurahan.toLowerCase() === valKel;
@@ -854,8 +855,8 @@
             let valAsnaf = document.getElementById("filterAsnaf").value;
 
             let filtered = databaseMustahik.filter(item => {
-                let matchTahun = valTahun === "" || item.tahun === valTahun;
-                let matchBulan = valBulan === "" || item.bulan === valBulan;
+                let matchTahun = valTahun === "" || (item.tahun && item.tahun === valTahun);
+                let matchBulan = valBulan === "" || (item.bulan && item.bulan === valBulan);
                 let matchProgram = valProgram === "" || item.program === valProgram;
                 let matchKec = valKec === "" || item.kecamatan === valKec;
                 let matchKel = valKel === "" || item.kelurahan === valKel;
