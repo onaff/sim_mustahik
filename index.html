@@ -56,8 +56,6 @@
         th, td { padding: 10px; text-align: left; }
         th { background-color: #2c3e50; color: white; }
         tr:nth-child(even) { background-color: #f9f9f9; }
-        tr.clickable-row { cursor: pointer; }
-        tr.clickable-row:hover { background-color: #f1f2f6; }
         
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; width: 100%; }
         .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; border-bottom: 4px solid #1abc9c;}
@@ -461,7 +459,6 @@
         const listProgram = ['SALATIGA CERDAS', 'SALATIGA SEHAT', 'SALATIGA PEDULI', 'SALATIGA MAKMUR', 'SALATIGA BAROKAH'];
         const listAsnaf = ['FAKIR', 'MISKIN', 'AMIL', 'MUALAF', 'RIQAB', 'GHARIM', 'SABILILLAH', 'IBNU SABIL'];
 
-        // Contoh database dengan mustahik (Ahmad: NIK 337301010190001) yang menerima beberapa bantuan berbeda waktu & program
         let databaseMustahik = [
             { 
                 id: 1, nik: "337301010190001", nama: "Ahmad", tempatLahir: "Salatiga", tanggalLahir: "1990-01-01", jenisKelamin: "Laki-laki", pekerjaan: "Buruh", alamat: "Jl. Argomulyo No. 10", telp: "081234567890", email: "ahmad@gmail.com", 
@@ -732,8 +729,7 @@
             tbody.innerHTML = "";
             data.forEach((item) => {
                 let tr = document.createElement("tr");
-                tr.className = "clickable-row";
-                tr.onclick = function() { tampilkanDetailMustahik(item.id); };
+                // Baris tabel murni untuk menampilkan data (klik/select baris tidak lagi membuka modal)
                 tr.innerHTML = `
                     <td>${item.id}</td>
                     <td>${item.nik}</td>
@@ -745,7 +741,7 @@
                     <td>${item.program}</td>
                     <td>${formatTanggalID(item.tanggalBantuan)}</td>
                     <td>Rp ${item.nominal.toLocaleString('id-ID')}</td>
-                    <td class="no-export" style="text-align: center; white-space: nowrap;" onclick="event.stopPropagation()">
+                    <td class="no-export" style="text-align: center; white-space: nowrap;">
                         <button class="btn btn-info" style="padding: 4px 8px; font-size:11px;" onclick="tampilkanDetailMustahik(${item.id})">🔍</button>
                         <button class="btn btn-warning" style="padding: 4px 8px; font-size:11px;" onclick="editData(${item.id})">✏️</button>
                         <button class="btn btn-danger" style="padding: 4px 8px; font-size:11px;" onclick="hapusData(${item.id})">🗑️</button>
